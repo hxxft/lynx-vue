@@ -31,6 +31,11 @@ export const isSVG = makeMap(
   true
 )
 
+// Lynx Modify
+export const isLynxTag = makeMap(
+  'view,label,img,listview,scrollview,viewstub'
+)
+
 export const isPreTag = (tag: ?string): boolean => tag === 'pre'
 
 export const isReservedTag = (tag: string): ?boolean => {
@@ -38,38 +43,44 @@ export const isReservedTag = (tag: string): ?boolean => {
 }
 
 export function getTagNamespace (tag: string): ?string {
-  if (isSVG(tag)) {
-    return 'svg'
-  }
-  // basic support for MathML
-  // note it doesn't support other MathML elements being component roots
-  if (tag === 'math') {
-    return 'math'
-  }
+  // Lynx Modify
+  // if (isSVG(tag)) {
+  //   return 'svg'
+  // }
+  // // basic support for MathML
+  // // note it doesn't support other MathML elements being component roots
+  // if (tag === 'math') {
+  //   return 'math'
+  // }
 }
 
 const unknownElementCache = Object.create(null)
 export function isUnknownElement (tag: string): boolean {
-  /* istanbul ignore if */
-  if (!inBrowser) {
-    return true
-  }
-  if (isReservedTag(tag)) {
+  // Lynx Modify
+  if(isLynxTag(tag)) {
     return false
   }
-  tag = tag.toLowerCase()
-  /* istanbul ignore if */
-  if (unknownElementCache[tag] != null) {
-    return unknownElementCache[tag]
-  }
-  const el = document.createElement(tag)
-  if (tag.indexOf('-') > -1) {
-    // http://stackoverflow.com/a/28210364/1070244
-    return (unknownElementCache[tag] = (
-      el.constructor === window.HTMLUnknownElement ||
-      el.constructor === window.HTMLElement
-    ))
-  } else {
-    return (unknownElementCache[tag] = /HTMLUnknownElement/.test(el.toString()))
-  }
+  return true
+  // /* istanbul ignore if */
+  // if (!inBrowser) {
+  //   return true
+  // }
+  // if (isReservedTag(tag)) {
+  //   return false
+  // }
+  // tag = tag.toLowerCase()
+  // /* istanbul ignore if */
+  // if (unknownElementCache[tag] != null) {
+  //   return unknownElementCache[tag]
+  // }
+  // const el = document.createElement(tag)
+  // if (tag.indexOf('-') > -1) {
+  //   // http://stackoverflow.com/a/28210364/1070244
+  //   return (unknownElementCache[tag] = (
+  //     el.constructor === window.HTMLUnknownElement ||
+  //     el.constructor === window.HTMLElement
+  //   ))
+  // } else {
+  //   return (unknownElementCache[tag] = /HTMLUnknownElement/.test(el.toString()))
+  // }
 }

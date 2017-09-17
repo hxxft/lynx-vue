@@ -23,7 +23,8 @@ export function createTextNode (text: string): Text {
 }
 
 export function createComment (text: string): Comment {
-  return document.createComment(text)
+  // Lynx Modify
+  return document.createElement('view')
 }
 
 export function insertBefore (parentNode: Node, newNode: Node, referenceNode: Node) {

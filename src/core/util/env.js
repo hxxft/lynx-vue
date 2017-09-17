@@ -80,6 +80,7 @@ export const nextTick = (function () {
     }
   }
 
+  // Lynx Modify
   // the nextTick behavior leverages the microtask queue, which can be accessed
   // via either native Promise.then or MutationObserver.
   // MutationObserver has wider support, however it is seriously bugged in
@@ -87,41 +88,44 @@ export const nextTick = (function () {
   // completely stops working after triggering a few times... so, if native
   // Promise is available, we will use it:
   /* istanbul ignore if */
-  if (typeof Promise !== 'undefined' && isNative(Promise)) {
-    var p = Promise.resolve()
-    var logError = err => { console.error(err) }
-    timerFunc = () => {
-      p.then(nextTickHandler).catch(logError)
-      // in problematic UIWebViews, Promise.then doesn't completely break, but
-      // it can get stuck in a weird state where callbacks are pushed into the
-      // microtask queue but the queue isn't being flushed, until the browser
-      // needs to do some other work, e.g. handle a timer. Therefore we can
-      // "force" the microtask queue to be flushed by adding an empty timer.
-      if (isIOS) setTimeout(noop)
-    }
-  } else if (typeof MutationObserver !== 'undefined' && (
-    isNative(MutationObserver) ||
-    // PhantomJS and iOS 7.x
-    MutationObserver.toString() === '[object MutationObserverConstructor]'
-  )) {
-    // use MutationObserver where native Promise is not available,
-    // e.g. PhantomJS IE11, iOS7, Android 4.4
-    var counter = 1
-    var observer = new MutationObserver(nextTickHandler)
-    var textNode = document.createTextNode(String(counter))
-    observer.observe(textNode, {
-      characterData: true
-    })
-    timerFunc = () => {
-      counter = (counter + 1) % 2
-      textNode.data = String(counter)
-    }
-  } else {
-    // fallback to setTimeout
-    /* istanbul ignore next */
-    timerFunc = () => {
-      setTimeout(nextTickHandler, 0)
-    }
+  // if (typeof Promise !== 'undefined' && isNative(Promise)) {
+  //   var p = Promise.resolve()
+  //   var logError = err => { console.error(err) }
+  //   timerFunc = () => {
+  //     p.then(nextTickHandler).catch(logError)
+  //     // in problematic UIWebViews, Promise.then doesn't completely break, but
+  //     // it can get stuck in a weird state where callbacks are pushed into the
+  //     // microtask queue but the queue isn't being flushed, until the browser
+  //     // needs to do some other work, e.g. handle a timer. Therefore we can
+  //     // "force" the microtask queue to be flushed by adding an empty timer.
+  //     if (isIOS) setTimeout(noop)
+  //   }
+  // } else if (typeof MutationObserver !== 'undefined' && (
+  //   isNative(MutationObserver) ||
+  //   // PhantomJS and iOS 7.x
+  //   MutationObserver.toString() === '[object MutationObserverConstructor]'
+  // )) {
+  //   // use MutationObserver where native Promise is not available,
+  //   // e.g. PhantomJS IE11, iOS7, Android 4.4
+  //   var counter = 1
+  //   var observer = new MutationObserver(nextTickHandler)
+  //   var textNode = document.createTextNode(String(counter))
+  //   observer.observe(textNode, {
+  //     characterData: true
+  //   })
+  //   timerFunc = () => {
+  //     counter = (counter + 1) % 2
+  //     textNode.data = String(counter)
+  //   }
+  // } else {
+  //   // fallback to setTimeout
+  //   /* istanbul ignore next */
+  //   timerFunc = () => {
+  //     setTimeout(nextTickHandler, 0)
+  //   }
+  // }
+  timerFunc = () => {
+    setTimeout(nextTickHandler, 0)
   }
 
   return function queueNextTick (cb?: Function, ctx?: Object) {
