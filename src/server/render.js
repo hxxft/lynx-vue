@@ -11,6 +11,7 @@ import { SSR_ATTR } from 'shared/constants'
 import { RenderContext } from './render-context'
 import { ssrCompileToFunctions } from 'web/server/compiler'
 import { installSSRHelpers } from './optimizing-compiler/runtime-helpers'
+import { getStyleString } from 'core/util/style'
 
 import {
   createComponent,
@@ -52,9 +53,10 @@ function renderNode (node, isRoot, context) {
   } else if (isTrue(node.isComment)) {
     if (isDef(node.asyncFactory)) {
       // async component
-      renderAsyncComponent(node, isRoot, context)
+      //renderAsyncComponent(node, isRoot, context)
     } else {
-      context.write(`<!--${node.text}-->`, context.next)
+      context.write("<div tag=\"view\"></div>", context.next)
+      //context.write(`<!--${node.text}-->`, context.next)
     }
   } else {
     context.write(
@@ -161,6 +163,26 @@ function renderComponentInner (node, isRoot, context) {
   normalizeRender(child)
   const childNode = child._render()
   childNode.parent = node
+    // component外部设置class，无法渲染到component内部
+  var styleSheet = node.context.$data && node.context.$data.style;
+  var style = {};
+  if (node.data && node.data.staticClass) {
+    if (childNode.data) {
+      if (!childNode.data.staticClass) {
+        var classNames = node.data.staticClass.split(' ');
+        if (styleSheet) {
+          classNames.forEach(function (cls) {
+            style = extend(style, styleSheet[cls]);
+          });
+        }
+      }
+    }
+  }
+
+  if (Object.keys(style).length > 0) {
+    childNode.data.staticStyle = style;
+  }
+
   context.renderStates.push({
     type: 'Component',
     prevActive
@@ -246,12 +268,20 @@ function renderElement (el, isRoot, context) {
     el.data.attrs[SSR_ATTR] = 'true'
   }
 
-  if (el.functionalOptions) {
-    registerComponentForCache(el.functionalOptions, write)
-  }
+  //if (el.functionalOptions) {
+  //  registerComponentForCache(el.functionalOptions, write)
+  //}
 
   const startTag = renderStartingTag(el, context)
-  const endTag = `</${el.tag}>`
+  var endTag;
+  if (el.tag && el.tag === 'body') {
+    endTag = '</body>';
+  } else if (el.tag && el.tag === 'image') {
+    endTag = '</img>';
+  } else {
+    endTag = '</div>';
+  }
+  //const endTag = `</${el.tag}>`
   if (context.isUnaryTag(el.tag)) {
     write(startTag, next)
   } else if (isUndef(el.children) || el.children.length === 0) {
@@ -290,7 +320,17 @@ function getVShowDirectiveInfo (node: VNode): ?VNodeDirective {
 }
 
 function renderStartingTag (node: VNode, context) {
-  let markup = `<${node.tag}`
+  var markup;
+  if (node.tag && node.tag === 'body') {
+    markup = '<body';
+  } else if (node.tag && node.tag === 'img') {
+    markup = '<img';
+  } else {
+    // 渲染tagName
+    markup = '<div';
+  }
+
+  markup += " tag=\"" + (node.tag) + "\"";
   const { directives, modules } = context
 
   // construct synthetic data for module processing
@@ -327,21 +367,25 @@ function renderStartingTag (node: VNode, context) {
       }
     }
   }
+
+  // 渲染样式
+  markup += getStyleString(node);
+
   // attach scoped CSS ID
-  let scopeId
-  const activeInstance = context.activeInstance
-  if (isDef(activeInstance) &&
-    activeInstance !== node.context &&
-    isDef(scopeId = activeInstance.$options._scopeId)
-  ) {
-    markup += ` ${(scopeId: any)}`
-  }
-  while (isDef(node)) {
-    if (isDef(scopeId = node.context.$options._scopeId)) {
-      markup += ` ${scopeId}`
-    }
-    node = node.parent
-  }
+  // let scopeId
+  // const activeInstance = context.activeInstance
+  // if (isDef(activeInstance) &&
+  //   activeInstance !== node.context &&
+  //   isDef(scopeId = activeInstance.$options._scopeId)
+  // ) {
+  //   markup += ` ${(scopeId: any)}`
+  // }
+  // while (isDef(node)) {
+  //   if (isDef(scopeId = node.context.$options._scopeId)) {
+  //     markup += ` ${scopeId}`
+  //   }
+  //   node = node.parent
+  // }
   return markup + '>'
 }
 

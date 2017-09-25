@@ -49,6 +49,8 @@ export function generate (
 }
 
 function genSSRElement (el: ASTElement, state: CodegenState): string {
+  // Lynx Modify
+  return genNormalElement(el, state, false)
   if (el.for && !el.forProcessed) {
     return genFor(el, state, genSSRElement)
   } else if (el.if && !el.ifProcessed) {
