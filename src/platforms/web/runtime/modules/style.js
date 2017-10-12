@@ -167,7 +167,7 @@ function updateStyle (oldVnode: VNodeWithData, vnode: VNodeWithData) {
 
   setStyles(elm, preStyles)
 
-  if(elm && !elm.style) {
+  if(elm && !elm.style && !isEmptyObject(preStyles)) {
     elm.setStyle('', '')
   }
 }
