@@ -3,7 +3,8 @@
 import {
   isDef,
   isUndef,
-  isTrue
+  isTrue,
+  extend
 } from 'shared/util'
 
 import { escape } from 'web/server/util'
@@ -167,20 +168,16 @@ function renderComponentInner (node, isRoot, context) {
   var styleSheet = node.context.$data && node.context.$data.style;
   var style = {};
   if (node.data && node.data.staticClass) {
-    if (childNode.data) {
-      if (!childNode.data.staticClass) {
-        var classNames = node.data.staticClass.split(' ');
-        if (styleSheet) {
-          classNames.forEach(function (cls) {
-            style = extend(style, styleSheet[cls]);
-          });
-        }
-      }
+    if (styleSheet) {
+      const classNames = node.data.staticClass.split(' ') 
+      classNames.forEach(function (cls) {
+        style = extend(style, styleSheet[cls]);
+      });
     }
   }
 
   if (Object.keys(style).length > 0) {
-    childNode.data.staticStyle = style;
+    childNode.data.parentStaticStyle = style;
   }
 
   context.renderStates.push({
@@ -370,7 +367,7 @@ function renderStartingTag (node: VNode, context) {
 
   // 渲染样式
   markup += getStyleString(node);
-
+   
   // attach scoped CSS ID
   // let scopeId
   // const activeInstance = context.activeInstance

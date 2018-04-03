@@ -214,7 +214,8 @@ export function getStyleString (vnode: VNode | VNodeWithData) {
 
   var preStyles = getStaticStyles(null, vnode);
   preStyles = extend(preStyles, getUpdateStyles(null, vnode));
-
+  if(vnode.data.parentStaticStyle)
+    preStyles = extend(preStyles, vnode.data.parentStaticStyle);
   if (Object.keys(preStyles) && Object.keys(preStyles).length > 0) {
     var preStylesString = '';
     // camelized css node

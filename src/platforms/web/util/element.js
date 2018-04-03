@@ -33,13 +33,14 @@ export const isSVG = makeMap(
 
 // Lynx Modify
 export const isLynxTag = makeMap(
-  'view,label,img,listview,scrollview,viewstub'
+  'view,label,img,listview,scrollview,viewstub, canvas'
 )
 
 export const isPreTag = (tag: ?string): boolean => tag === 'pre'
 
 export const isReservedTag = (tag: string): ?boolean => {
-  return isHTMLTag(tag) || isSVG(tag)
+  //return isHTMLTag(tag) || isSVG(tag)
+  return isLynxTag(tag)
 }
 
 export function getTagNamespace (tag: string): ?string {
